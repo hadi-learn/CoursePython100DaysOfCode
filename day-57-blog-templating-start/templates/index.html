@@ -11,48 +11,15 @@
     <div class="top">
         <div class="title"><h1>My Test Blog Learning Flask</h1></div>
     </div>
+    {% for post in posts: %}
     <div class="content">
         <div class="card">
-            <h2>{{ posts[0]["title"] }}</h2>
-            <p class="text">{{ posts[0]["subtitle"] }}</p>
-            <a href="{{ url_for('to_post', num=0) }}">Read</a>
+            <h2>{{ post.title }}</h2>
+            <p class="text">{{ post.subtitle }}</p>
+            <a href="{{ url_for('to_post', num=post.id) }}">Read</a>
         </div>
     </div>
-    <div class="content">
-        <div class="card">
-            <h2>{{ posts[1]["title"] }}</h2>
-            <p class="text">{{ posts[1]["subtitle"] }}</p>
-            <a href="{{ url_for('to_post', num=1) }}">Read</a>
-        </div>
-    </div>
-    <div class="content">
-        <div class="card">
-            <h2>{{ posts[2]["title"] }}</h2>
-            <p class="text">{{ posts[2]["subtitle"] }}</p>
-            <a href="{{ url_for('to_post', num=2) }}">Read</a>
-        </div>
-    </div>
-    <div class="content">
-        <div class="card">
-            <h2>{{ posts[3]["title"] }}</h2>
-            <p class="text">{{ posts[3]["subtitle"] }}</p>
-            <a href="{{ url_for('to_post', num=3) }}">Read</a>
-        </div>
-    </div>
-    <div class="content">
-        <div class="card">
-            <h2>{{ posts[4]["title"] }}</h2>
-            <p class="text">{{ posts[4]["subtitle"] }}</p>
-            <a href="{{ url_for('to_post', num=4) }}">Read</a>
-        </div>
-    </div>
-    <div class="content">
-        <div class="card">
-            <h2>{{ posts[5]["title"] }}</h2>
-            <p class="text">{{ posts[5]["subtitle"] }}</p>
-            <a href="{{ url_for('to_post', num=5) }}">Read</a>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 </body>
 <footer>
