@@ -105,6 +105,7 @@ p {
 
 #testimonials {
   background-color: #ef8173;
+  position: relative;
 }
 
 .testimonial-img{
@@ -164,7 +165,7 @@ p {
 .rotate {
   transform: rotate(0);
 }
-#title {
+#title .container-fluid{
   text-align: center;
 }
 }
