@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Learn HTML forms</title>
+</head>
+
+<body>
+  <h1>Learning HTML forms</h1>
+  <form class="" action="{{ url_for('login') }}" method="post">
+    <label for="name">Name</label>
+    <input type="text" name="username" value="" placeholder="name">
+    <label for="password">Password</label>
+    <input type="text" name="password" value="" placeholder="password">
+    <input type="submit" value="Submit">
+  </form>
+</body>
+
+</html>
