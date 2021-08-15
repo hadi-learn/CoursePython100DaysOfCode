@@ -1,0 +1,47 @@
+<!-- inherit the bootstrap base html -->
+{% extends "bootstrap/base.html" %}
+
+<!-- modify the title block -->
+{% block title %}Login{% endblock %}
+
+<!-- modify the block content as needed -->
+{% block content %}
+<div class="jumbotron">
+	<div class="container">
+		<h1>Welcome</h1>
+		<p>Are you ready to discover my secret?</p>
+		<p>
+			<a href="{{ url_for('login') }}">
+				<button class="btn btn-primary btn-md">Login</button>
+			</a>
+		</p>
+		<form class="" action="{{ url_for('test') }}" method="">
+			<input type="submit" href="{{ url_for('test') }}" value="Test Form">
+		</form>
+		<!-- <a href="{{ url_for('login') }}">login</a> -->
+	</div>
+</div>
+{% endblock %}
+
+
+
+
+<!-- <!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>Secrets</title>
+</head>
+
+<body>
+	<div class="jumbotron">
+		<div class="container">
+			<h1>Welcome</h1>
+			<p>Are you ready to discover my secret?</p>
+			<button class="btn btn-primary btn-lg" href="{{ url_for('login') }}">Login</button>
+			<a href="{{ url_for('login') }}">login</a>
+		</div>
+	</div>
+</body>
+
+</html> -->
