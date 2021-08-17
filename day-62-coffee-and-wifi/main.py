@@ -4,7 +4,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, URL
 import csv
-from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'somesecretkey'
@@ -45,7 +44,6 @@ def home():
 @app.route('/add', methods=["POST", "GET"])
 def add_cafe():
     form = CafeForm()
-    # form.coffee_rating.choices = [a.id for a in Coffee.query.order_by]
     if form.validate_on_submit():
         print("True")
         new_cafe = form.cafe.data + "," + form.location.data + "," + form.open_time.data + "," + form.closing_time.data + "," + form.coffee_rating.data + "," + form.wifi_rating.data + "," + form.power_rating.data
