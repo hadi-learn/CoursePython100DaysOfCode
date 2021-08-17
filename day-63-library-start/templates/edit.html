@@ -1,0 +1,24 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Edit Rating{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <h2>Book Name: {{ title }}</h2>
+  <h2>Current Rating: {{ rating }}</h2>
+  <br>
+  <form class="" action="{{ url_for('edit', id=id) }}" method="post" novalidate>
+    <p>
+      {{ form.rating.label }}
+      {{ form.rating }}
+      {% for err in form.rating.errors %}
+      <span style="color: red">{{ err }} </span>
+      {% endfor %}
+    </p>
+    <br>
+    {{ form.submit }}
+  </form>
+</div>
+
+{% endblock %}

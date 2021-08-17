@@ -1,0 +1,37 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Add Book{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <h1>Add Book</h1>
+  <form action="{{ url_for('add') }}" method="post" novalidate>
+    <p>
+      {{ form.book_name.label }}
+      {{ form.book_name }}
+      {% for err in form.book_name.errors %}
+      <span style="color: red">{{ err }} </span>
+      {% endfor %}
+    </p>
+    <p>
+      {{ form.book_author.label }}
+      {{ form.book_author }}
+      {% for err in form.book_author.errors %}
+      <span style="color: red">{{ err }} </span>
+      {% endfor %}
+    <p>
+      {{ form.rating.label }}
+      {{ form.rating }}
+      {% for err in form.rating.errors %}
+      <span style="color: red">{{ err }} </span>
+      {% endfor %}
+    </p>
+    <br>
+    {{ form.submit }}
+
+  </form>
+</div>
+
+
+{% endblock %}

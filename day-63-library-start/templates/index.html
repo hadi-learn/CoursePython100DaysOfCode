@@ -1,0 +1,22 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}My Library{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <h1>My Library</h1>
+  {% if total_book == 0 %}
+  <p>Library is empty.</p>
+  {% else %}
+    {% for book in books %}
+      <ul class="list-group">
+        <li>{{ book.title }} - {{ book.author }} - {{ book.rating }}/10 <a href="{{ url_for('edit', id=book.id) }}">Edit Rating</a></li>
+      </ul>
+    {% endfor %}
+  {% endif %}
+
+  <a href="{{ url_for('add') }}">Add New Book</a>
+</div>
+
+{% endblock %}
