@@ -1,0 +1,203 @@
+/******************* TAG SELECTOR ******************/
+
+body {
+  margin: 0;
+  text-align: center;
+  font-family: 'Bitter', serif;
+}
+h1 {
+  margin: 50px auto 0;
+  font-family: 'Tangerine', cursive;
+  font-size: 5.5rem;
+  color: #5E8B7E;
+}
+h2 {
+  margin: 10px auto;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  color: #5E8B7E;
+}
+h3 {
+  font-family: 'Montserrat', sans-serif;
+  margin: 3px auto;
+  color: #2F5D62;
+}
+hr {
+  margin: 40px auto;
+  height: 0;
+  width: 10%;
+  border-style: dotted none none none;
+  border-color: #A7C4BC;
+  border-width: 6px;
+}
+p {
+  color: #1F441E;
+  text-align: center;
+  line-height: 1.5;
+}
+strong {
+  padding-top: 8px;
+  display: block;
+  text-align: left;
+}
+/******************* CLASS SELECTOR ****************/
+
+.top-container {
+  background-color: #DFEEEA;
+  position: relative;
+  padding-top: 100px;
+}
+.middle-container {
+  background-color: #DFEEEA;
+  padding-bottom: 2em;
+}
+.bottom-container {
+  background-color: #A7C4BC;
+  padding: 2em 0 8px;
+}
+.bio {
+  width: 40%;
+  display: inline-block;
+  margin: auto;
+  text-align: left;
+}
+.college {
+  display: inline-block;
+  padding-right: 4em;
+}
+.faculty {
+  display: inline-block;
+  width: 40%;
+}
+.degree {
+  text-align: left;
+}
+.duration {
+  display: block;
+  margin-bottom: 10px;
+}
+.brief {
+  width: 20%;
+}
+.skill-row {
+  margin: 50px auto;
+  display: inline-block;
+  width: 50%;
+}
+.top-cloud {
+  position: absolute;
+  right: 28%;
+  top : 8%;
+}
+.bottom-cloud {
+  position: absolute;
+  left: 28%;
+}
+.skill-table {
+  margin: 0 auto;
+}
+.skill-name {
+  color: #1F441E;
+  text-align: left;
+  width: 170px;
+}
+.skill-level {
+  text-align: right;
+  width: 100px;
+}
+.hadi-img {
+  margin: 2em auto;
+  width: 14rem;
+}
+.logo-ugm-img {
+  width: 10rem;
+}
+.broadcast-img {
+  width: 10rem;
+}
+.programming-img {
+  width: 10rem;
+}
+.database-img {
+  width: 10rem;
+}
+.module-img {
+  width: 10rem;;
+}
+.tool-img {
+  width: 10rem;
+}
+.footer-link {
+  text-decoration: none;
+  margin: 0 1em;
+  color: #2F5D62;
+}
+.footer-link:hover {
+  color: #EAF6F6
+}
+.copyright {
+  margin: 2rem auto 1rem;
+  color: #EAF6F6;
+  font-size: 0.8em;
+}
+.external-container {
+  font-size: 0.8em;
+  background-color: #A7C4BC;
+  padding-bottom: 2rem;
+}
+.external {
+  text-decoration: none;
+}
+
+/******************* Contact button CSS generator **********/
+
+.contact_button {
+  margin-top: 1em;
+   background: #3D94F6;
+   background-image: -webkit-linear-gradient(top, #3D94F6, #1E62D0);
+   background-image: -moz-linear-gradient(top, #3D94F6, #1E62D0);
+   background-image: -ms-linear-gradient(top, #3D94F6, #1E62D0);
+   background-image: -o-linear-gradient(top, #3D94F6, #1E62D0);
+   background-image: -webkit-gradient(to bottom, #3D94F6, #1E62D0);
+   -webkit-border-radius: 20px;
+   -moz-border-radius: 20px;
+   border-radius: 20px;
+   height: 10px;
+   line-height: 10px;
+   color: #99C624;
+   font-family: Brush Script MT;
+   width: 100px;
+   font-size: 14px;
+   font-weight: 100;
+   padding: 16px;
+   text-shadow: 1px 1px 20px #000000;
+   border: solid #337FED 1px;
+   text-decoration: none;
+   display: inline-block;
+   cursor: pointer;
+   text-align: center;
+}
+
+.contact_button:hover {
+   border: solid #337FED 1px;
+   background: #1E62D0;
+   background-image: -webkit-linear-gradient(top, #1E62D0, #3D94F6);
+   background-image: -moz-linear-gradient(top, #1E62D0, #3D94F6);
+   background-image: -ms-linear-gradient(top, #1E62D0, #3D94F6);
+   background-image: -o-linear-gradient(top, #1E62D0, #3D94F6);
+   background-image: -webkit-gradient(to bottom, #1E62D0, #3D94F6);
+   -webkit-border-radius: 20px;
+   -moz-border-radius: 20px;
+   border-radius: 20px;
+   text-decoration: none;
+}
+
+/******************* ID SELECTOR ****************/
+
+#my-title {
+  margin: 0 auto;
+  font-weight: normal;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  color: #5E8B7E;
+}
