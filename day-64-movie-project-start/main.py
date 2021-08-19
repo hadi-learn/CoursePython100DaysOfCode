@@ -1,10 +1,11 @@
 from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, SessionBase
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FloatField, TextField
 from wtforms.validators import DataRequired
 import requests
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'somesecretkey'
@@ -12,63 +13,77 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///movie-collection.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 Bootstrap(app)
+TMDB_SEARCH_ENDPOINT = "https://api.themoviedb.org/3/search/movie"
+TMDB_DETAIL_ENDPOINT = "https://api.themoviedb.org/3/movie/"
+TMDB_API_KEY = os.environ.get("TMDB_API_KEY")
+POSTER_PATH = "https://image.tmdb.org/t/p/original"
+params = {
+    "api_key": TMDB_API_KEY,
+}
 
 
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    # year = db.Column(db.DateTime, nullable=False)
     year = db.Column(db.String(4), nullable=False)
-    # year = db.Column(db.String(min=4, max=4), nullable=False)
     description = db.Column(db.String(300), nullable=False)
-    rating = db.Column(db.Float, nullable=False)
-    ranking = db.Column(db.Integer, nullable=False)
-    review = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Float)
+    ranking = db.Column(db.Integer)
+    review = db.Column(db.Text)
     img_url = db.Column(db.String(300), nullable=False)
 
 ###### create/delete database
 db.create_all()
 # db.drop_all()
 
-###### delete records manually
-# movie_id = 1
-# movie_to_delete = Movie.query.get(movie_id)
-# db.session.delete(movie_to_delete)
-
-
-###### add records to database manually
-# new_movie = Movie(title="Phone Booth",
-#                   year="2002",
-#                   description="Publicist Stuart Shepard finds himself trapped in a phone booth, pinned down by an extortionist's sniper rifle. Unable to leave or receive outside help, Stuart's negotiation with the caller leads to a jaw-dropping climax.",
-#                   rating=7.3, ranking=10, review="My favourite character was the caller.",
-#                   img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg")
-# db.session.add(new_movie)
-# db.session.commit()
 
 class EditForm(FlaskForm):
     rating = FloatField("Rating", validators=[DataRequired()])
     review = TextField("Review", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
+class AddForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
 
 @app.route("/")
 def home():
-    all_movies = Movie.query.all()
+    all_movies = Movie.query.order_by(Movie.rating).all()
     total_movies = len(all_movies)
+    bottom_rank = total_movies
+    for movie in all_movies:
+        movie.ranking = bottom_rank
+        bottom_rank -= 1
     return render_template("index.html", movies=all_movies, total_movies=total_movies)
 
-@app.route("/edit/<int:id>", methods=["POST", "GET"])
-def edit(id):
+@app.route("/edit", methods=["POST", "GET"])
+def edit():
     form = EditForm()
-    # movie_to_edit = Movie.query.get(id)
-    # rating = movie_to_edit.rating
-    # review = movie_to_edit.review
+    if request.args.get("movie"):
+        movie = eval(request.args.get("movie"))
+        id = movie["id"]
+        detail_endpoint = f"{TMDB_DETAIL_ENDPOINT}{movie['id']}"
+        response = requests.get(url=detail_endpoint, params=params)
+        response.raise_for_status()
+        data = response.json()
+        title = data["title"]
+        img_url = POSTER_PATH + data["poster_path"]
+        year = data["release_date"]
+        description = data["overview"]
+        movie_to_save = Movie(id=id, title=title, year=year, description=description, rating=None, ranking=None,
+                              review="None", img_url=img_url)
+        db.session.add(movie_to_save)
+        db.session.commit()
+        return render_template("edit.html", form=form, id=id)
     if request.method == "POST":
+        id = request.args.get("id")
         movie_to_edit = Movie.query.get(id)
         movie_to_edit.rating = form.rating.data
         movie_to_edit.review = form.review.data
         db.session.commit()
         return redirect(url_for("home"))
+    id = request.args.get("id")
     return render_template("edit.html", form=form, id=id)
 
 
@@ -78,6 +93,22 @@ def delete(id):
     db.session.delete(movie_to_delete)
     db.session.commit()
     return redirect(url_for("home"))
+
+
+@app.route("/add", methods=["POST", "GET"])
+def add():
+    form = AddForm()
+    if request.method == "POST":
+        title = request.form["title"]
+        params["query"] = title
+        response = requests.get(url=TMDB_SEARCH_ENDPOINT, params=params)
+        response.raise_for_status()
+        data = response.json()
+        movie_list = data["results"]
+        total_movie = len(movie_list)
+        return render_template("select.html", movie_list=movie_list, total_movie=total_movie)
+    return render_template("add.html", form=form)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -12,5 +12,16 @@
 {% block content %}
 <div class="content">
     <h1 class="heading">Add a Movie</h1>
+    <form class="" action="{{ url_for('add') }}" method="post">
+      <p>
+        Movie Title<br>
+        {{ form.title }}
+        {% for err in form.title.errors %}
+        <span style="color: red">{{ err }} </span>
+        {% endfor %}
+      </p>
+      <br>
+      {{ form.submit }}
+    </form>
 </div>
 {% endblock %}

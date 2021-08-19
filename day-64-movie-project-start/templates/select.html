@@ -2,20 +2,26 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block styles %}
-  {{ super() }}
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+{{ super() }}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 {% endblock %}
 
 {% block title %}Select Movie{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1 class="heading">Select Movie</h1>
+  <h1 class="heading">Select Movie</h1>
   <p>
-    <a href="#"> MOVIE TITLE - MOVIE RELEASE DATE</a>
+    MOVIE TITLE - MOVIE RELEASE DATE
   </p>
+  <br>
+  {% for movie in movie_list %}
+  <p>
+    <a href="{{ url_for('edit', movie=movie) }}">{{ movie["title"] }} - {{ movie["release_date"] }}</a>
+  </p>
+  {% endfor %}
 
 </div>
 {% endblock %}
