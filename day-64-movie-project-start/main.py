@@ -55,6 +55,7 @@ def home():
     for movie in all_movies:
         movie.ranking = bottom_rank
         bottom_rank -= 1
+    db.session.commit()
     return render_template("index.html", movies=all_movies, total_movies=total_movies)
 
 @app.route("/edit", methods=["POST", "GET"])
