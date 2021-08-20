@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>test</title>
+  </head>
+  <body>
+    {% for cafe in cafes %}
+    <p>
+      {{ cafe["id"] }}<br>
+      {{ cafe["name"] }}<br>
+      {{ cafe["map_url"] }}<br>
+      {{ cafe["img_url"] }}<br>
+      {{ cafe["location"] }}<br>
+      {{ cafe["seats"] }}<br>
+      {{ cafe["has_toilet"] }}<br>
+      {{ cafe["has_wifi"] }}<br>
+      {{ cafe["has_sockets"] }}<br>
+      {{ cafe["can_take_calls"] }}<br>
+      {{ cafe["coffee_price"] }}<br>
+    </p>
+    <br>
+    {% endfor %}
+  </body>
+</html>
