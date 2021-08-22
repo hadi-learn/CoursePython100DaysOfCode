@@ -1,10 +1,12 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
 from flask_ckeditor import CKEditor, CKEditorField
+from datetime import datetime
+import time
 
 
 ## Delete this code:
@@ -38,7 +40,7 @@ class CreatePostForm(FlaskForm):
     subtitle = StringField("Subtitle", validators=[DataRequired()])
     author = StringField("Your Name", validators=[DataRequired()])
     img_url = StringField("Blog Image URL", validators=[DataRequired(), URL()])
-    body = StringField("Blog Content", validators=[DataRequired()])
+    body = CKEditorField("Blog Content", validators=[DataRequired()])
     submit = SubmitField("Submit Post")
 
 
@@ -55,12 +57,31 @@ def show_post(index):
     return render_template("post.html", post=requested_post)
 
 
-@app.route("/new-post", methods=["POST"])
+@app.route("/new-post", methods=["GET", "POST"])
 def new_post():
-    form = CreatePostForm
-    if form.validate_on_submit():
-
-    return render_template("make-post.html", form=form)
+    form = CreatePostForm()
+    if request.method == "POST":
+        # if form.validate_on_submit():
+        now = time.time()
+        date = datetime.fromtimestamp(now).strftime("%B %d, %Y")
+        title = form.title.data
+        subtitle = form.subtitle.data
+        author = form.author.data
+        img_url = form.img_url.data
+        body = form.body.data
+        blog_to_post = BlogPost(
+            title = form.title.data,
+            subtitle = form.subtitle.data,
+            date = date,
+            author = form.author.data,
+            img_url = form.img_url.data,
+            body = form.body.data
+        )
+        db.session.add(blog_to_post)
+        db.session.commit()
+        return redirect(url_for("get_all_posts"))
+    else:
+        return render_template("make-post.html", form=form)
 
 
 @app.route("/edit/<post_id>")
@@ -76,6 +97,16 @@ def about():
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
+
+
+@app.route("/test")
+def test():
+    now = time.time()
+    print(now)
+    date_time = datetime.fromtimestamp(now)
+    today = date_time.strftime("%B %d, %Y")
+    print(today)
+    return f"{today}"
 
 if __name__ == "__main__":
     app.run(debug=True)
