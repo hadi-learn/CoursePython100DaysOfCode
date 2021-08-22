@@ -60,33 +60,53 @@ def show_post(index):
 @app.route("/new-post", methods=["GET", "POST"])
 def new_post():
     form = CreatePostForm()
+    edit = False
     if request.method == "POST":
-        # if form.validate_on_submit():
-        now = time.time()
-        date = datetime.fromtimestamp(now).strftime("%B %d, %Y")
-        title = form.title.data
-        subtitle = form.subtitle.data
-        author = form.author.data
-        img_url = form.img_url.data
-        body = form.body.data
-        blog_to_post = BlogPost(
-            title = form.title.data,
-            subtitle = form.subtitle.data,
-            date = date,
-            author = form.author.data,
-            img_url = form.img_url.data,
+        if form.validate_on_submit():
+            now = time.time()
+            date = datetime.fromtimestamp(now).strftime("%B %d, %Y")
+            title = form.title.data
+            subtitle = form.subtitle.data
+            author = form.author.data
+            img_url = form.img_url.data
             body = form.body.data
-        )
-        db.session.add(blog_to_post)
-        db.session.commit()
-        return redirect(url_for("get_all_posts"))
+            blog_to_post = BlogPost(
+                title=form.title.data,
+                subtitle=form.subtitle.data,
+                date=date,
+                author=form.author.data,
+                img_url=form.img_url.data,
+                body=form.body.data
+            )
+            db.session.add(blog_to_post)
+            db.session.commit()
+            return redirect(url_for("get_all_posts"))
+        return render_template("make-post.html", form=form, edit=edit)
     else:
-        return render_template("make-post.html", form=form)
+        return render_template("make-post.html", form=form, edit=edit)
 
 
-@app.route("/edit/<post_id>")
+@app.route("/edit/<post_id>", methods=["GET", "POST"])
 def edit_post(post_id):
-    return "OK"
+    blog_to_edit = db.session.query(BlogPost).get(post_id)
+    edit = True
+    form = CreatePostForm(
+        title = blog_to_edit.title,
+        subtitle = blog_to_edit.subtitle,
+        author = blog_to_edit.author,
+        img_url = blog_to_edit.img_url,
+        body = blog_to_edit.body
+    )
+    if form.validate_on_submit():
+        blog_to_edit.title = form.title.data
+        blog_to_edit.subtitle = form.subtitle.data
+        blog_to_edit.author = form.author.data
+        blog_to_edit.img_url = form.img_url.data
+        blog_to_edit.body = form.body.data
+        db.session.commit()
+        return redirect(url_for("show_post", index=post_id))
+    return render_template("make-post.html", form=form, edit=edit)
+    # return "OK"
 
 
 @app.route("/about")
@@ -99,14 +119,13 @@ def contact():
     return render_template("contact.html")
 
 
-@app.route("/test")
-def test():
-    now = time.time()
-    print(now)
-    date_time = datetime.fromtimestamp(now)
-    today = date_time.strftime("%B %d, %Y")
-    print(today)
-    return f"{today}"
+@app.route("/delete")
+def delete():
+    post_id = request.args.get("post_id")
+    post_to_delete = db.session.query(BlogPost).get(post_id)
+    db.session.delete(post_to_delete)
+    db.session.commit()
+    return redirect(url_for("get_all_posts"))
 
 if __name__ == "__main__":
     app.run(debug=True)
