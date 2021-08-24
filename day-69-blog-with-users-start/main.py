@@ -1,13 +1,17 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from datetime import date
+import time
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import CreatePostForm
 from flask_gravatar import Gravatar
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField, TextField
+from wtforms.validators import DataRequired, Email, URL
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SomeSecretKey'
@@ -21,7 +25,6 @@ db = SQLAlchemy(app)
 
 
 ##CONFIGURE TABLES
-
 class BlogPost(db.Model):
     __tablename__ = "blog_posts"
     id = db.Column(db.Integer, primary_key=True)
@@ -31,7 +34,29 @@ class BlogPost(db.Model):
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
-db.create_all()
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = "user"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(250), unique=True, nullable=False)
+    email = db.Column(db.String(250), unique=True, nullable=False)
+    password = db.Column(db.String(250), nullable=False)
+
+##CREATE TABLE ONCE
+# db.create_all()
+
+##CONFIGURE FORM
+class RegisterForm(FlaskForm):
+    username = StringField("Username", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    submit = SubmitField("Submit")
+
+class LoginForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    submit = SubmitField("Submit")
 
 
 @app.route('/')
@@ -40,14 +65,38 @@ def get_all_posts():
     return render_template("index.html", all_posts=posts)
 
 
-@app.route('/register')
+@app.route('/register', methods=["GET", "POST"])
 def register():
-    return render_template("register.html")
+    form = RegisterForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            user_to_save = User(
+                username = form.username.data,
+                email = form.email.data,
+                password = generate_password_hash(password=form.password.data, method="pbkdf2:sha256", salt_length=8)
+            )
+            check_user_by_username = User.query.filter_by(username=form.username.data).first()
+            check_user_by_email = User.query.filter_by(email=form.email.data).first()
+            if check_user_by_username:
+                flash("Sorry, that username already exist. Please login.")
+                return redirect(url_for("login"))
+            elif check_user_by_email:
+                flash("Sorry, that email already exist. Please login.")
+                return redirect(url_for("login"))
+            else:
+                db.session.add(user_to_save)
+                db.session.commit()
+                return "OK"
+        else:
+            return render_template("register.html", form=form)
+    else:
+        return render_template("register.html", form=form)
 
 
 @app.route('/login')
 def login():
-    return render_template("login.html")
+    form = LoginForm()
+    return render_template("login.html", form=form)
 
 
 @app.route('/logout')
