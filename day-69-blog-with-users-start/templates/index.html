@@ -7,7 +7,7 @@
       <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
           <div class="site-heading">
-            <h1>Angela's Blog</h1>
+            <h1>Hadi's Blog</h1>
             <span class="subheading">A collection of random musings.</span>
           </div>
         </div>
@@ -30,11 +30,12 @@
             </h3>
           </a>
           <p class="post-meta">Posted by
-            <a href="#">{{post.author}}</a>
+            <a href="#">{{post.author.username}}</a>
             on {{post.date}}
-          
+
+            {% if admin %}
             <a href="{{url_for('delete_post', post_id=post.id) }}">✘</a>
-          
+            {% endif %}
           </p>
         </div>
         <hr>
@@ -42,9 +43,11 @@
 
 
         <!-- New Post -->
+        {% if admin %}
         <div class="clearfix">
           <a class="btn btn-primary float-right" href="{{url_for('add_new_post')}}">Create New Post</a>
         </div>
+        {% endif %}
       </div>
     </div>
   </div>

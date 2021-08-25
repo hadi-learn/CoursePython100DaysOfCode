@@ -32,6 +32,13 @@
           {% endif %}
         {% endwith %}
 
+        {% for err in form.email.errors %}
+          <p style="color: red;">{{ err }}</p>
+        {% endfor %}
+        {% for err in form.password.errors %}
+          <p style="color: red;">{{ err }}</p>
+        {% endfor %}
+
         {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
 
       </div>
