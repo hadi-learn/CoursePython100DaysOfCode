@@ -11,10 +11,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
-from flask_gravatar import Gravatar
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextField
-from wtforms.validators import DataRequired, Email, URL
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SomeSecretKey'
@@ -34,7 +30,7 @@ login_manager.init_app(app)
 Base = declarative_base()
 
 ##CONFIGURE TABLES
-class User(UserMixin, db.Model):
+class User(UserMixin, db.Model, Base):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
@@ -44,7 +40,7 @@ class User(UserMixin, db.Model):
     comments = relationship("Comment", back_populates="author")
 
 
-class BlogPost(db.Model):
+class BlogPost(db.Model, Base):
     __tablename__ = "blog_posts"
     id = db.Column(db.Integer, primary_key=True)
     author = relationship("User", back_populates="posts")
@@ -54,16 +50,16 @@ class BlogPost(db.Model):
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
     user_id = db.Column(db.Integer, ForeignKey("user.id"))
-    comments = relationship("Comment", back_populates="comment")
+    comments = relationship("Comment", back_populates="blog")
 
 
-class Comment(db.Model):
+class Comment(db.Model, Base):
     __tablename__ = "comment"
     id = db.Column(db.Integer, primary_key=True)
-    comment = db.Column(db.String(1000), nullable=False)
+    comment_text = db.Column(db.String(1000), nullable=False)
     author = relationship("User", back_populates="comments")
-    blog = relationship("BlogPost", back_populates="comments")
     user_id = db.Column(db.Integer, ForeignKey("user.id"))
+    blog = relationship("BlogPost", back_populates="comments")
     blog_id = db.Column(db.Integer, ForeignKey("blog_posts.id"))
 
 
@@ -157,13 +153,30 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=["GET", "POST"])
 @login_required
 def show_post(post_id):
     form = CommentForm()
     requested_post = BlogPost.query.get(post_id)
     admin = True if current_user.get_id() == "1" else False
-    return render_template("post.html", post=requested_post, logged_in=current_user.is_authenticated, admin=admin, form=form)
+    all_comments = []
+    comment_query = Comment.query.all()
+    for comment in comment_query:
+        comment_dict = {
+            "comment_text": comment.comment_text,
+            "comment_author": comment.author.username,
+        }
+        all_comments.append(comment_dict)
+    if request.method == "POST":
+        comment_to_save = Comment(
+            comment_text = form.comment.data,
+            author = current_user,
+            blog = requested_post
+        )
+        db.session.add(comment_to_save)
+        db.session.commit()
+        return redirect(url_for("show_post", post_id=requested_post.id))
+    return render_template("post.html", post=requested_post, logged_in=current_user.is_authenticated, admin=admin, form=form, comments=all_comments)
 
 
 @app.route("/about")

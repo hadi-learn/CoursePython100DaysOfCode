@@ -36,20 +36,26 @@
         <!--           Comments Area -->
         <div class="col-lg-8 col-md-10 mx-auto comment">
           <ul class="commentList">
+            {% for comment in comments %}
             <li>
               <div class="commenterImage">
                 <img src="https://pbs.twimg.com/profile_images/744849215675838464/IH0FNIXk.jpg" />
               </div>
               <div class="commentText">
-                <p>
-                {{ ckeditor.load() }}
-                {{ ckeditor.config(name='comment') }}
-                {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
-                </p>
-                <span class="date sub-text">comment author name</span>
+                <p>{{ comment.comment_text | safe }}</p>
+                <span class="date sub-text">{{ comment.comment_author }}</span>
               </div>
             </li>
+            {% endfor %}
           </ul>
+          <div class="commentField">
+            <p>
+            {{ ckeditor.load() }}
+            {{ ckeditor.config(name='comment') }}
+            {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+            </p>
+          </div>
+
         </div>
 
 
