@@ -3,7 +3,6 @@ from functools import wraps
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from datetime import date
-import time
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Table, Column, Integer, ForeignKey
@@ -11,6 +10,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
+from flask_gravatar import Gravatar
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SomeSecretKey'
@@ -28,6 +28,16 @@ login_manager.init_app(app)
 
 ##Declare the base of relational database
 Base = declarative_base()
+
+##Gravatar initialization
+gravatar = Gravatar(
+    app=app,
+    size=100,
+    rating="g",
+    default="retro",
+    force_default=False,
+    force_lower=False
+)
 
 ##CONFIGURE TABLES
 class User(UserMixin, db.Model, Base):
@@ -165,6 +175,7 @@ def show_post(post_id):
         comment_dict = {
             "comment_text": comment.comment_text,
             "comment_author": comment.author.username,
+            "comment_email": comment.author.email,
         }
         all_comments.append(comment_dict)
     if request.method == "POST":

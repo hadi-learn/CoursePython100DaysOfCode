@@ -39,7 +39,8 @@
             {% for comment in comments %}
             <li>
               <div class="commenterImage">
-                <img src="https://pbs.twimg.com/profile_images/744849215675838464/IH0FNIXk.jpg" />
+                <img src="{{ comment.comment_email | gravatar }}" alt="">
+                <!-- <img src="https://pbs.twimg.com/profile_images/744849215675838464/IH0FNIXk.jpg" /> -->
               </div>
               <div class="commentText">
                 <p>{{ comment.comment_text | safe }}</p>
