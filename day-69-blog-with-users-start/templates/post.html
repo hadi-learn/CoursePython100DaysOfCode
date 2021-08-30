@@ -12,7 +12,15 @@
           <h2 class="subheading">{{post.subtitle}}</h2>
           <span class="meta">Posted by
             <a href="#">{{post.author.username}}</a>
-            on {{post.date}}</span>
+            on {{post.date}}
+          </span>
+          {% if post.last_edited_date %}
+          <span class="meta">
+            Last edited by
+            <a href="#">{{ post.author.username }}</a> on {{ post.last_edited_date }}
+          </span>
+          <span class="meta">This editor section is under construction</span>
+          {% endif %}
         </div>
       </div>
     </div>

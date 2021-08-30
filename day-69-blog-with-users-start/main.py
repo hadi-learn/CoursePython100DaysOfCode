@@ -48,19 +48,25 @@ class User(UserMixin, db.Model, Base):
     password = db.Column(db.String(250), nullable=False)
     posts = relationship("BlogPost", back_populates="author")
     comments = relationship("Comment", back_populates="author")
+    ## Try to add editor section on each post
+    # editor = relationship("Editor", back_populates="author")
 
 
 class BlogPost(db.Model, Base):
     __tablename__ = "blog_posts"
     id = db.Column(db.Integer, primary_key=True)
     author = relationship("User", back_populates="posts")
+    date = db.Column(db.String(250), nullable=False)
     title = db.Column(db.String(250), unique=True, nullable=False)
     subtitle = db.Column(db.String(250), nullable=False)
-    date = db.Column(db.String(250), nullable=False)
-    body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey("user.id"))
+    body = db.Column(db.Text, nullable=False)
     comments = relationship("Comment", back_populates="blog")
+    last_edited_date = db.Column(db.String(250))
+    author_id = db.Column(db.Integer, ForeignKey("user.id"))
+    ## Try to enable editor section
+    # editor = relationship("Editor", back_populates="blog")
+
 
 
 class Comment(db.Model, Base):
@@ -68,10 +74,19 @@ class Comment(db.Model, Base):
     id = db.Column(db.Integer, primary_key=True)
     comment_text = db.Column(db.String(1000), nullable=False)
     author = relationship("User", back_populates="comments")
-    user_id = db.Column(db.Integer, ForeignKey("user.id"))
+    author_id = db.Column(db.Integer, ForeignKey("user.id"))
     blog = relationship("BlogPost", back_populates="comments")
     blog_id = db.Column(db.Integer, ForeignKey("blog_posts.id"))
 
+
+## TRY TO ADD EDITOR SECTION ON EVERY POST PAGE
+# class Editor(db.Model, Base):
+#     __tablename__ = "comment"
+#     id = db.Column(db.Integer, primary_key=True)
+#     author = relationship("User", back_populates="editor")
+#     author_id = db.Column(db.Integer, ForeignKey("user.id"))
+#     blog = relationship("BlogPost", back_populates="editor")
+#     blog_id = db.Column(db.Integer, ForeignKey("blog_posts.id"))
 
 
 ##CREATE TABLE ONCE
@@ -84,7 +99,22 @@ def admin_only(function):
         if current_user.get_id() == "1":
             return function(*args, **kwargs)
         else:
-            abort(403, description="Sorry, authorized personnel only. You don't have the permission to access this page.")
+            abort(403,
+                  description="Sorry, authorized personnel only. You don't have the permission to access this page.")
+    return wrapper
+
+
+def blog_owner(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        requested_post = BlogPost.query.get(kwargs["post_id"])
+        owner = True if requested_post.author.id == int(current_user.get_id()) else False
+        admin = True if current_user.get_id() == "1" else False
+        if admin or owner:
+            return function(*args, **kwargs)
+        else:
+            abort(403,
+                  description="Sorry, authorized personnel only. You don't have the permission to access this page.")
     return wrapper
 
 
@@ -170,7 +200,7 @@ def show_post(post_id):
     requested_post = BlogPost.query.get(post_id)
     admin = True if current_user.get_id() == "1" else False
     all_comments = []
-    comment_query = Comment.query.all()
+    comment_query = Comment.query.filter_by(blog_id=post_id).all()
     for comment in comment_query:
         comment_dict = {
             "comment_text": comment.comment_text,
@@ -201,7 +231,7 @@ def contact():
 
 
 @app.route("/new-post", methods=["GET", "POST"])
-# @admin_only
+# ## anyone can post a new blog at this moment
 @login_required
 def add_new_post():
     form = CreatePostForm()
@@ -213,20 +243,18 @@ def add_new_post():
             body=form.body.data,
             img_url=form.img_url.data,
             author=current_user,
-            date=date.today().strftime("%B %d, %Y")
+            date=date.today().strftime("%B %d, %Y"),
+            last_edited_date = None
         )
-        # print(type(author))
-        # print(new_post.author)
-        # print(type(new_post.author))
         db.session.add(new_post)
         db.session.commit()
-        # return f"OK - {author_name} - {new_post.author}"
         return redirect(url_for("home"))
     return render_template("make-post.html", form=form, logged_in=current_user.is_authenticated)
 
 
-@app.route("/edit-post/<int:post_id>")
-# @admin_only
+@app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
+## edit available for admin and the author
+@blog_owner
 @login_required
 def edit_post(post_id):
     post = BlogPost.query.get(post_id)
@@ -234,22 +262,29 @@ def edit_post(post_id):
         title=post.title,
         subtitle=post.subtitle,
         img_url=post.img_url,
-        author=post.author,
         body=post.body
     )
-    if edit_form.validate_on_submit():
-        post.title = edit_form.title.data
-        post.subtitle = edit_form.subtitle.data
-        post.img_url = edit_form.img_url.data
-        post.author = edit_form.author.data
-        post.body = edit_form.body.data
-        db.session.commit()
-        return redirect(url_for("show_post", post_id=post.id))
-    return render_template("make-post.html", form=edit_form, logged_in=current_user.is_authenticated)
+    if request.method == "POST":
+        if edit_form.validate_on_submit():
+            post.title = edit_form.title.data
+            post.subtitle = edit_form.subtitle.data
+            post.img_url = edit_form.img_url.data
+            post.body = edit_form.body.data
+            # add editor here if there any editor section later and delete the author line
+            # post.editor = current_user
+            post.author = current_user
+            post.last_edited_date = date.today().strftime("%B %d, %Y")
+            db.session.commit()
+            return redirect(url_for("show_post", post_id=post.id))
+        else:
+            return render_template("make-post.html", form=edit_form, logged_in=current_user.is_authenticated,
+                                   is_edit=True)
+    else:
+        return render_template("make-post.html", form=edit_form, logged_in=current_user.is_authenticated, is_edit=True)
 
 
 @app.route("/delete/<int:post_id>")
-# @admin_only
+@admin_only
 @login_required
 def delete_post(post_id):
     post_to_delete = BlogPost.query.get(post_id)
