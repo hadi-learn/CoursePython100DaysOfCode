@@ -12,6 +12,8 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from flask_gravatar import Gravatar
 import os
+import click
+from flask.cli import with_appcontext
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
@@ -19,8 +21,10 @@ ckeditor = CKEditor(app)
 Bootstrap(app)
 
 ##CONNECT TO DB
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///blog.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL_2")
+# conn = psycopg2.connect(os.environ.get("DATABASE_URL_2"), sslmode='require')
+# app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///blog.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -92,6 +96,9 @@ class Comment(db.Model, Base):
 
 
 ##CREATE TABLE ONCE
+# @click.command(name="create_tables")
+# @with_appcontext
+# def create_tables():
 # db.create_all()
 
 
@@ -211,14 +218,18 @@ def show_post(post_id):
         }
         all_comments.append(comment_dict)
     if request.method == "POST":
-        comment_to_save = Comment(
-            comment_text = form.comment.data,
-            author = current_user,
-            blog = requested_post
-        )
-        db.session.add(comment_to_save)
-        db.session.commit()
-        return redirect(url_for("show_post", post_id=requested_post.id))
+        if not current_user.is_authenticated:
+            flash("Please login or register to comment.")
+            return redirect(url_for("login"))
+        else:
+            comment_to_save = Comment(
+                comment_text = form.comment.data,
+                author = current_user,
+                blog = requested_post
+            )
+            db.session.add(comment_to_save)
+            db.session.commit()
+            return redirect(url_for("show_post", post_id=requested_post.id))
     return render_template("post.html", post=requested_post, logged_in=current_user.is_authenticated, admin=admin, form=form, comments=all_comments)
 
 
